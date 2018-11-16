@@ -1,9 +1,4 @@
-
-type testFunction = unit => unit;
-
-type testContext = {
-
-};
+open Types;
 
 let test = (name: string, testFunction: testFunction) => {
 

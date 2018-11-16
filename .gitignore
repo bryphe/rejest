@@ -61,7 +61,7 @@ typings/
 .next
 
 .merlin
-.install
+*.install
 
 _esy/
 _build/
