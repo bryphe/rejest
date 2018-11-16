@@ -1,5 +1,7 @@
 open Types;
 
+let expect = Expect.expect;
+
 let test = (name: string, testFunction: testFunction) => {
 
     /* If not running, queue up test */

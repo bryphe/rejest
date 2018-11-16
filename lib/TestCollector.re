@@ -27,7 +27,7 @@ let runTest = (testFunction: testFunction, context: testContext) => {
     /* Run all beforeEach */
     TestReporter.startTest(context.name);
     testFunction();
-    TestReporter.endTest(context.name);
+    TestReporter.endTest(context.name, Pass);
     /* Run all afterEach */
 };
 
@@ -49,10 +49,9 @@ let collectTest = (testName: string, testFunction: testFunction) => {
 
     currentContext := newContext;
 
-
     /* Run current test function */
 
-    runTest(testFunction);
+    runTest(testFunction, newContext);
 
     currentContext := previousContext;
 };
