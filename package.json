@@ -1,19 +1,34 @@
 {
-  "name": "rejest",
-  "version": "1.0.0",
-  "description": "A Jest-like test runner for native Reason",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bryphe/rejest.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/bryphe/rejest/issues"
-  },
-  "homepage": "https://github.com/bryphe/rejest#readme"
+    "name": "rejest",
+    "version": "1.0.0",
+    "description": "A Jest-like test runner for native Reason",
+    "main": "index.js",
+    "esy": {
+        "build": "refmterr dune build -p #{self.name}",
+        "buildsInSource": "_build"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bryphe/rejest.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/bryphe/rejest/issues"
+    },
+    "homepage": "https://github.com/bryphe/rejest#readme",
+    "dependencies": {
+        "@opam/dune": "^1.5.0",
+        "@opam/lwt": "*",
+        "@esy-ocaml/reason": "^3.3.7",
+        "ocaml": "~4.6.0",
+        "refmterr": "*",
+        "@opam/lambda-term": "^1.11.0"
+    },
+    "devDependencies": {
+        "@esy-ocaml/merlin": "*"
+    }
 }

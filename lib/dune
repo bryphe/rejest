@@ -1,0 +1,4 @@
+(library
+    (name rejest)
+    (public_name rejest)
+    (libraries lambda-term))
