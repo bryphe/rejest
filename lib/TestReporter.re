@@ -8,7 +8,7 @@ let startTest = (testName: string) => {
     print_endline ("start test: " ++ testName);
 };
 
-let endTest = (testName: string, result: testResult) => {
+let endTest = (testName: string, _result: testResult) => {
     print_endline ("end test: " ++ testName);
 };
 
