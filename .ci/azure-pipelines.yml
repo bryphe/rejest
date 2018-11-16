@@ -40,4 +40,4 @@ jobs:
       displayName: 'Release Package'
       inputs:
           PathtoPublish: '.'
-          ArtifictName: npm-package
+          ArtifactName: npm-package
