@@ -10,3 +10,5 @@ test("expect", () => {
         ();
     });
 });
+
+Rejest.run();
