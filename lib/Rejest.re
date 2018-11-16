@@ -24,6 +24,8 @@ let test = (name: string, testFunction: testFunction) => {
     }
 };
 
+open LTerm_style;
+open LTerm_text;
 
 let run = () => {
     /* For each 'queued' test, call the in-aplty named `collectTest` */
@@ -35,7 +37,7 @@ let run = () => {
             TestCollector.collectTest(t.name, t.testFunction);
         }, tests^)
         isRunning := false;
-        Lwt.return();
+        LTerm.printls(eval([B_fg(green), S("PASS"), E_fg, S(" "), S("World!"), E_fg]));
     };
 
     Lwt_main.run(runTests());
