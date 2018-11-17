@@ -28,7 +28,7 @@ let runTest = (testFunction: testFunction, context: testContext) => {
   let testResult = ref(Types.Pass);
   try (testFunction()) {
   | x => testResult := Fail(x)
-  }
+  };
   TestReporter.endTest(context.name, testResult^);
   /* Run all afterEach */
 };

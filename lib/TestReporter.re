@@ -92,27 +92,31 @@ let rec printContext = (context: testResultContext, level: int) => {
 };
 
 let rec printErrors = (context: testResultContext) => {
-    let%lwt _ = switch (context.testResult) {
-    | Fail(x) => {
-        let%lwt _ = LTerm.printls(eval([S("EXCEPTION: " ++ Printexc.to_string(x))]));
-        Lwt.return();
-    }
-    | _ => Lwt.return();
-    }
-
-   Lwt_list.iter_s(c => printErrors(c), context.children);
-};
-
-let rec didContextPass = (context: testResultContext) => {
+  let%lwt _ =
     switch (context.testResult) {
-    | Fail(_) => false
-    | Pass => true && List.fold_left((prev, c) => prev && didContextPass(c), true, context.children);
-    }
+    | Fail(x) =>
+      let%lwt _ =
+        LTerm.printls(eval([S("EXCEPTION: " ++ Printexc.to_string(x))]));
+      Lwt.return();
+    | _ => Lwt.return()
+    };
+
+  Lwt_list.iter_s(c => printErrors(c), context.children);
 };
 
-let passed = () => {
-    didContextPass(rootContext);
-};
+let rec didContextPass = (context: testResultContext) =>
+  switch (context.testResult) {
+  | Fail(_) => false
+  | Pass =>
+    true
+    && List.fold_left(
+         (prev, c) => prev && didContextPass(c),
+         true,
+         context.children,
+       )
+  };
+
+let passed = () => didContextPass(rootContext);
 
 let printSummary = () => {
   let%lwt () = LTerm.printls(eval([S("\n")]));
