@@ -25,8 +25,11 @@ let currentContext: ref(testContext) = ref(rootContext);
 let runTest = (testFunction: testFunction, context: testContext) => {
   /* Run all beforeEach */
   TestReporter.startTest(context.name);
-  testFunction();
-  TestReporter.endTest(context.name, Pass);
+  let testResult = ref(Types.Pass);
+  try (testFunction()) {
+  | x => testResult := Fail(x)
+  }
+  TestReporter.endTest(context.name, testResult^);
   /* Run all afterEach */
 };
 

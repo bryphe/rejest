@@ -39,7 +39,12 @@ let run = () => {
     );
     isRunning := false;
 
-    TestReporter.printSummary();
+    let%lwt () = TestReporter.printSummary();
+
+    switch (TestReporter.passed()) {
+    | true => exit(0)
+    | false => exit(1)
+    };
   };
 
   Lwt_main.run(runTests());

@@ -6,4 +6,4 @@ type testFunction = unit => unit;
 
 type testResult =
   | Pass
-  | Fail;
+  | Fail(exn);

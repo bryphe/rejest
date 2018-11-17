@@ -65,7 +65,7 @@ let printTestResult = (context: testResultContext, level: int) => {
           E_fg,
         ]),
       )
-    | Fail =>
+    | Fail(_) =>
       LTerm.printls(
         eval([
           S(padding),
@@ -97,3 +97,15 @@ let printSummary = () => {
   let%lwt () = LTerm.printls(eval([S("\n")]));
   Lwt.return();
 };
+
+let rec didContextPass = (context: testResultContext) => {
+    switch (context.testResult) {
+    | Fail(_) => false
+    | Pass => true && List.fold_left((prev, c) => prev && didContextPass(c), true, context.children);
+    }
+};
+
+let passed = () => {
+    didContextPass(rootContext);
+};
+
