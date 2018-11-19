@@ -23,6 +23,7 @@
     "dependencies": {
         "@opam/dune": "^1.5.0",
         "@opam/lwt": "*",
+        "@opam/lwt_ppx": "^1.1.0",
         "@esy-ocaml/reason": "^3.3.7",
         "ocaml": "~4.6.0",
         "refmterr": "*",

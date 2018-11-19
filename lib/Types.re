@@ -5,5 +5,5 @@
 type testFunction = unit => unit;
 
 type testResult =
-| Pass
-| Fail;
+  | Pass
+  | Fail(exn);

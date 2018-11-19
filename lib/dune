@@ -1,4 +1,6 @@
 (library
     (name rejest)
     (public_name rejest)
+    (flags (:standard -w -33))
+    (preprocess (pps lwt_ppx))
     (libraries lambda-term))
