@@ -3,32 +3,27 @@
  *
  * Subset of Jest expect API
  */
-
-type expectationFailedProps = {
-    actualValue: string,
-    expectedValue: string,
-};
-
-exception ExpectationFailed(expectationFailedProps);
+open Types;
 
 type comparer('a) = ('a, 'a) => bool;
-type printer('a) = ('a) => string;
+type printer('a) = 'a => string;
 
 let invert = (c: comparer('a)) => {
-    let ret = (a, b) => !c(a, b);
-    ret;
+  let ret = (a, b) => !c(a, b);
+  ret;
 };
 
-let _assertEqual = (c: comparer('a), p: printer('a), actualValue: 'a, expectedValue: 'a) => {
-
-    if(!c(actualValue, expectedValue)) {
-        let props: expectationFailedProps = {
-            actualValue: p(actualValue),
-            expectedValue: p(expectedValue),
-        };
-        raise(ExpectationFailed(props));
-    }
-
+let _assertEqual =
+    (c: comparer('a), p: printer('a), actualValue: 'a, expectedValue: 'a) => {
+  let r = Printexc.get_callstack(10);
+  if (!c(actualValue, expectedValue)) {
+    let props: expectationFailedProps = {
+      callstack: Printexc.raw_backtrace_to_string(r),
+      actualValue: p(actualValue),
+      expectedValue: p(expectedValue),
+    };
+    Printexc.raise_with_backtrace(ExpectationFailed(props), r);
+  };
 };
 
 type expect('a) = {
@@ -50,34 +45,39 @@ let _expect = (c: comparer('a), p: printer('a), v: 'a) => {
 };
 
 let expect = (v: 'a) => {
-    let c: comparer('a) = (a, b) => a == b;
-    let p: printer('a) = (_a: 'a) => "[object]";
-    _expect(c, p, v);
+  let c: comparer('a) = (a, b) => a == b;
+  let p: printer('a) = (_a: 'a) => "[object]";
+  _expect(c, p, v);
 };
 
-module type ExpectCore {
-    type t;
-    let compare: comparer(t);
-    let show: printer(t);
+module type ExpectCore = {
+  type t;
+  let compare: comparer(t);
+  let show: printer(t);
 };
 
 module Make = (Core: ExpectCore) => {
-    let expect = _expect(Core.compare, Core.show);
+  let expect = _expect(Core.compare, Core.show);
 };
 
-module FloatExpecter {
-    type t = float;
-    let compare = (a: float, b: float) => a == b;
-    let show = (a: float) => string_of_float(a);
+module FloatExpecter = {
+  type t = float;
+  let compare = (a: float, b: float) => a == b;
+  let show = (a: float) => string_of_float(a);
 };
 
-module StringExpecter {
-    type t = string;
-    let compare = (a: string, b: string) => String.equal(a, b);
-    let show = (a) => a;
-}
+module StringExpecter = {
+  type t = string;
+  let compare = (a: string, b: string) => String.equal(a, b);
+  let show = a => a;
+};
+
+module ExceptionExpecter = {
+  type t = exn;
+  let compare = (a: exn, b: exn) => a == b;
+  let show = (a: exn) => Printexc.to_string(a);
+};
 
 module Expect_float = Make(FloatExpecter);
 module Expect_string = Make(StringExpecter);
-
-
+module Expect_exn = Make(ExceptionExpecter);

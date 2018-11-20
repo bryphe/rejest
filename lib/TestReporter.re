@@ -95,8 +95,28 @@ let rec printErrors = (context: testResultContext) => {
   let%lwt _ =
     switch (context.testResult) {
     | Fail(x) =>
+      let%lwt _ = LTerm.printls(eval([S("FAIL: " ++ context.testName)]));
       let%lwt _ =
-        LTerm.printls(eval([S("EXCEPTION: " ++ Printexc.to_string(x))]));
+        switch (x) {
+        | ExpectationFailed(_p) =>
+          let%lwt _ =
+            LTerm.printls(
+              eval([S("Expectation Failed: " ++ Printexc.to_string(x))]),
+            );
+          let%lwt _ =
+            LTerm.printls(eval([S("Expected: " ++ _p.expectedValue)]));
+          let%lwt _ =
+            LTerm.printls(eval([S("Actual: " ++ _p.actualValue)]));
+          let%lwt _ = LTerm.printls(eval([S(_p.callstack)]));
+          Lwt.return();
+        | x =>
+          let%lwt _ =
+            LTerm.printls(
+              eval([S("Unhandled exception: " ++ Printexc.to_string(x))]),
+            );
+          Lwt.return();
+        };
+      let%lwt _ = LTerm.printls(eval([S("\n")]));
       Lwt.return();
     | _ => Lwt.return()
     };
