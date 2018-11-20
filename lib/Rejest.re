@@ -2,6 +2,8 @@ open Types;
 
 let expect = Expect.expect;
 
+module Expect_function = Expect_function;
+
 let isRunning = ref(false);
 
 type test = {
@@ -32,6 +34,7 @@ let run = () => {
   /* How do we wait for all Lwt promises? */
 
   let runTests = () => {
+    Printexc.record_backtrace(true);
     isRunning := true;
     List.iter(
       t => TestCollector.collectTest(t.name, t.testFunction),
