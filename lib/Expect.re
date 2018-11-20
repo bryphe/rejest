@@ -5,27 +5,30 @@
  */
 
 type expectationFailedProps = {
-    actualValue: Obj.t,
-    expectedValue: Obj.t,
+    actualValue: string,
+    expectedValue: string,
 };
 
 exception ExpectationFailed(expectationFailedProps);
 
-let _assertEqual = (actualValue: 'a, expectedValue: 'a) => {
+type comparer('a) = ('a, 'a) => bool;
+type printer('a) = ('a) => string;
 
-    if(actualValue != expectedValue) {
+let invert = (c: comparer('a)) => {
+    let ret = (a, b) => !c(a, b);
+    ret;
+};
+
+let _assertEqual = (c: comparer('a), p: printer('a), actualValue: 'a, expectedValue: 'a) => {
+
+    if(!c(actualValue, expectedValue)) {
         let props: expectationFailedProps = {
-            actualValue: Obj.repr(actualValue),
-            expectedValue: Obj.repr(expectedValue),
+            actualValue: p(actualValue),
+            expectedValue: p(expectedValue),
         };
         raise(ExpectationFailed(props));
     }
 
-};
-
-let _assertNotEqual = (_actualValue: 'a, _expectedValue: 'a) => {
- /* TODO */
-    ();
 };
 
 type expect('a) = {
@@ -35,13 +38,46 @@ type expect('a) = {
   toNotBe: 'a => unit,
 };
 
-let expect = (v: 'a) => {
+let _expect = (c: comparer('a), p: printer('a), v: 'a) => {
   let ret: expect('a) = {
-    toEqual: t => _assertEqual(v, t),
-    toBe: a => _assertEqual(v, a),
-    toNotEqual: t => _assertNotEqual(v, t),
-    toNotBe: t => _assertNotEqual(v, t),
+    toEqual: _assertEqual(c, p, v),
+    toBe: _assertEqual(c, p, v),
+    toNotEqual: _assertEqual(invert(c), p, v),
+    toNotBe: _assertEqual(invert(c), p, v),
   };
 
   ret;
 };
+
+let expect = (v: 'a) => {
+    let c: comparer('a) = (a, b) => a == b;
+    let p: printer('a) = (_a: 'a) => "[object]";
+    _expect(c, p, v);
+};
+
+module type ExpectCore {
+    type t;
+    let compare: comparer(t);
+    let show: printer(t);
+};
+
+module Make = (Core: ExpectCore) => {
+    let expect = _expect(Core.compare, Core.show);
+};
+
+module FloatExpecter {
+    type t = float;
+    let compare = (a: float, b: float) => a == b;
+    let show = (a: float) => string_of_float(a);
+};
+
+module StringExpecter {
+    type t = string;
+    let compare = (a: string, b: string) => String.equal(a, b);
+    let show = (a) => a;
+}
+
+module Expect_float = Make(FloatExpecter);
+module Expect_string = Make(StringExpecter);
+
+
