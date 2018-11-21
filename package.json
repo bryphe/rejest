@@ -8,7 +8,9 @@
         "buildsInSource": "_build"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build:js": "esy b dune build test/Test.bc.js",
+        "test:js": "node _build/default/test/Test.bc.js",
+        "test:native": "esy b dune runtest"
     },
     "repository": {
         "type": "git",
