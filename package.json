@@ -23,6 +23,7 @@
     },
     "homepage": "https://github.com/bryphe/rejest#readme",
     "dependencies": {
+        "@opam/chalk": "1.0",
         "@opam/dune": "^1.5.0",
         "@opam/lwt": "*",
         "@opam/lwt_ppx": "^1.1.0",
