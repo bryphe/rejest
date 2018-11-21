@@ -2,9 +2,6 @@
  * TestReporter
  */
 
-open LTerm_style;
-open LTerm_text;
-
 open Types;
 
 type testResultContext = {
@@ -49,79 +46,38 @@ let endTest = (_testName: string, result: testResult) => {
 let printTestResult = (context: testResultContext, level: int) => {
   let padding = String.make(level * 2, ' ');
 
-  let%lwt _ =
-    switch (context.testResult) {
-    | Pass =>
-      LTerm.printls(
-        eval([
-          S(padding),
-          B_bold(true),
-          B_bg(green),
-          S(" PASS "),
-          E_bg,
-          E_bold,
-          S(" "),
-          S(context.testName),
-          E_fg,
-        ]),
-      )
-    | Fail(_) =>
-      LTerm.printls(
-        eval([
-          S(padding),
-          B_bold(true),
-          B_bg(red),
-          S(" FAIL "),
-          E_bg,
-          E_bold,
-          S(" "),
-          S(context.testName),
-          E_fg,
-        ]),
-      )
-    };
-  Lwt.return();
+  switch (context.testResult) {
+  | Pass => print_endline(padding ++ Chalk.bg_green(Chalk.white(Chalk.bold(" PASS "))) ++ " " ++ Chalk.white(context.testName))
+  | Fail(_) => print_endline(padding ++ Chalk.bg_red(Chalk.white(Chalk.bold(" FAIL "))) ++ " " ++  Chalk.white(context.testName))
+  };
 };
 
 let rec printContext = (context: testResultContext, level: int) => {
-  let%lwt _ =
-    context.testName == "__root" ?
-      Lwt.return() : printTestResult(context, level);
+  context.testName == "__root" ? () : printTestResult(context, level);
 
-  Lwt_list.iter_s(c => printContext(c, level + 1), context.children);
+  List.iter(c => printContext(c, level + 1), context.children);
 };
 
-let rec printErrors = (context: testResultContext) => {
-  let%lwt _ =
-    switch (context.testResult) {
-    | Fail(x) =>
-      let%lwt _ = LTerm.printls(eval([S("FAIL: " ++ context.testName)]));
-      let%lwt _ =
-        switch (x) {
-        | ExpectationFailed(_p) =>
-          let%lwt _ =
-            LTerm.printls(
-              eval([S("Expectation Failed: " ++ Printexc.to_string(x))]),
-            );
-          let%lwt _ =
-            LTerm.printls(eval([S("Expected: " ++ _p.expectedValue)]));
-          let%lwt _ =
-            LTerm.printls(eval([S("Actual: " ++ _p.actualValue)]));
-          let%lwt _ = LTerm.printls(eval([S(_p.callstack)]));
-          Lwt.return();
-        | x =>
-          let%lwt _ =
-            LTerm.printls(
-              eval([S("Unhandled exception: " ++ Printexc.to_string(x))]),
-            );
-          Lwt.return();
-        };
-      let%lwt _ = LTerm.printls(eval([S("\n")]));
-      Lwt.return();
-    | _ => Lwt.return()
-    };
+let neutralHighlight = (s) => Chalk.bold(Chalk.white(s))
 
-  Lwt_list.iter_s(c => printErrors(c), context.children);
+let rec printErrors = (context: testResultContext) => {
+  switch (context.testResult) {
+  | Fail(x) =>
+    print_endline(Chalk.bg_red(Chalk.white(Chalk.bold(" FAIL: "))) ++ " " ++ context.testName);
+
+    switch (x) {
+    | ExpectationFailed(_p) =>
+      print_endline(neutralHighlight("Expectation Failed:") ++ " " ++ Printexc.to_string(x));
+      print_endline(neutralHighlight("Expected:") ++ " " ++ _p.expectedValue);
+      print_endline(neutralHighlight("Actual:") ++ " " ++ _p.actualValue);
+      print_endline(neutralHighlight(" Callstack: ") ++ " "  ++ _p.callstack);
+    | x => print_endline(neutralHighlight("Unhandled exception:") ++ " " ++ Printexc.to_string(x))
+    };
+    print_endline("");
+  | _ => ()
+  };
+
+  List.iter(c => printErrors(c), context.children);
 };
 
 let rec didContextPass = (context: testResultContext) =>
@@ -139,10 +95,9 @@ let rec didContextPass = (context: testResultContext) =>
 let passed = () => didContextPass(rootContext);
 
 let printSummary = () => {
-  let%lwt () = LTerm.printls(eval([S("\n")]));
-  let%lwt () = printContext(rootContext, 0);
-  let%lwt () = LTerm.printls(eval([S("\n")]));
+  print_endline("");
+  printContext(rootContext, 0);
+  print_endline("");
 
-  let%lwt () = printErrors(rootContext);
-  Lwt.return();
+  printErrors(rootContext);
 };

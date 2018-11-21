@@ -2,7 +2,13 @@ open Types;
 
 let expect = Expect.expect;
 
+module Expect_float = Expect.Expect_float;
+module Expect_string = Expect.Expect_string;
 module Expect_function = Expect_function;
+
+module Expect {
+    module Make = Expect.Make;
+};
 
 let isRunning = ref(false);
 
@@ -26,9 +32,6 @@ let test = (name: string, testFunction: testFunction) =>
     );
   };
 
-open LTerm_style;
-open LTerm_text;
-
 let run = () => {
   /* For each 'queued' test, call the in-aplty named `collectTest` */
   /* How do we wait for all Lwt promises? */
@@ -42,10 +45,10 @@ let run = () => {
     );
     isRunning := false;
 
-    let%lwt () = TestReporter.printSummary();
+    TestReporter.printSummary();
 
     TestReporter.passed() ? exit(0) : exit(1);
   };
 
-  Lwt_main.run(runTests());
+  runTests();
 };
