@@ -2,7 +2,13 @@ open Types;
 
 let expect = Expect.expect;
 
+module Expect_float = Expect.Expect_float;
+module Expect_string = Expect.Expect_string;
 module Expect_function = Expect_function;
+
+module Expect {
+    module Make = Expect.Make;
+};
 
 let isRunning = ref(false);
 
